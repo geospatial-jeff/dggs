@@ -6,8 +6,7 @@ from pyproj import Proj, transform
 import json
 
 from .profiles import Geojson
-
-
+from .utils import cloud_optimized_vector
 
 class DGGS():
 
@@ -35,6 +34,24 @@ class PointDGGS():
     def __init__(self, centroid_list, epsg):
         self.centroids = centroid_list
         self.epsg = epsg
+
+    def Deploy(self, bucket, key, precision, multi=False):
+        #Deploy the vector
+        hashes = self.Encode(precision)
+        if multi:
+            m = Pool(multiprocessing.cpu_count()-1)
+            m.map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key), zip(self.centroids, hashes))
+        else:
+            map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key), zip(self.centroids, hashes))
+        #Upload metadata
+        x = [x[0] for x in self.centroids]
+        y = [y[1] for y in self.centroids]
+        metadata = {'fcount': len(self.centroids),
+                    'extent': (min(x), max(x), min(y), max(y)),
+                    'epsg': self.epsg,
+                    'geohashes': hashes
+                    }
+        s3.Object(bucket, os.path.join(key, 'metadata.json')).put(Body=json.dumps(metadata))
 
     def Encode(self, precision):
         if self.epsg != 4326:
