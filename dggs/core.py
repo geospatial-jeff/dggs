@@ -33,3 +33,11 @@ class PointDGGS():
     def __init__(self, centroid_list, epsg):
         self.centroids = centroid_list
         self.epsg = epsg
+
+    def Encode(self, precision):
+        if self.epsg != 4326:
+            inProj = Proj(init='epsg:{}'.format(self.epsg))
+            outProj = Proj(init='epsg:4326')
+            centroids = [transform(inProj,outProj,x[0],x[1]) for x in self.centroids]
+            return [geohash.encode(x[1], x[0]) for x in centroids]
+        return [geohash.encode(x[1], x[0], precision) for x in self.centroids]
