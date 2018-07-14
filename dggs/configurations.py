@@ -38,3 +38,20 @@ class PixelConfiguration(DGGSConfiguration):
     @property
     def spacing(self):
         return (float(self.h_spacing * self.xres), float(self.v_spacing * self.yres))
+
+class DistanceConfiguration(DGGSConfiguration):
+
+    """Class for configuring DGGS where grid size is specified in units of epsg input parameter"""
+
+    def __init__(self, extent, h_spacing, v_spacing, epsg, h_overlap=0, v_overlap=0):
+        DGGSConfiguration.__init__(self, extent, h_spacing, v_spacing, epsg, h_overlap, v_overlap)
+
+    @property
+    def dimensions(self):
+        cols = int(math.ceil(float(self.width) / (self.h_spacing - self.h_overlap)))
+        rows = int(math.ceil(float(self.height) / (self.v_spacing - self.v_overlap)))
+        return (cols,rows)
+
+    @property
+    def spacing(self):
+        return (self.h_spacing, self.v_spacing)
