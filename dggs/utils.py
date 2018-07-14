@@ -6,7 +6,10 @@ from .profiles import Geojson
 
 s3 = boto3.resource('s3')
 
-def cloud_optimized_vector(package, bucket, key):
+def cloud_optimized_vector(package, bucket, key, type):
     data, hashes = package
-    geoj = Geojson(data).Point()
-    s3.Object(bucket, os.path.join(key, hashes+'.geojson')).put(Body=json.dumps(geoj))
+    if type == 'Point':
+        geoj = Geojson(data).Point()
+    elif type == 'Polygon':
+        geoj = Geojson(data).Polygon()
+    s3.Object(bucket, os.path.join(key, hashes+'.geojson')).put(Body=geoj)

@@ -1,4 +1,4 @@
-
+import json
 
 class Geojson():
 
@@ -7,16 +7,16 @@ class Geojson():
         self.atts = atts
 
     def Point(self):
-        return {"type": "Feature",
+        return json.dumps({"type": "Feature",
                 "geometry": {"type": "Point", "coordinates": self.data
                 }
-            }
+            })
 
     def Line(self):
-        return {"type": "Feature",
+        return json.dumps({"type": "Feature",
                 "geometry": {"type": "LineString", "coordinates": self.data
                 }
-            }
+            })
 
     def Polygon(self):
         return {"type": "Feature",
@@ -25,19 +25,19 @@ class Geojson():
             }
 
     def MultiPoint(self):
-        return {"type": "Feature",
+        return json.dumps({"type": "Feature",
                 "geometry": {"type": "MultiPoint", "coordinates": self.data
                 }
-            }
+            })
 
     def MultiLine(self):
-        return {"type": "Feature",
+        return json.dumps({"type": "Feature",
                 "geometry": {"type": "MultiLineString", "coordinates": self.data
                 }
-            }
+            })
 
     def MultiPolygon(self):
-        return {"type": "Feature",
+        return json.dumps({"type": "Feature",
                 "geometry": {"type": "MultiPolygon", "coordinates": self.data
                 }
-            }
+            })
