@@ -7,6 +7,7 @@ import json
 import boto3
 import os
 
+
 from .profiles import Geojson
 from .utils import cloud_optimized_vector
 
@@ -39,7 +40,7 @@ class PointDGGS():
         self.centroids = centroid_list
         self.epsg = epsg
 
-    def Deploy(self, bucket, key, precision, multi=False):
+    def Deploy(self, bucket, key, precision, multi=False, metadata=False):
         #Deploy the vector
         hashes = self.Encode(precision)
         if multi:
@@ -50,12 +51,13 @@ class PointDGGS():
         #Upload metadata
         x = [x[0] for x in self.centroids]
         y = [y[1] for y in self.centroids]
-        metadata = {'fcount': len(self.centroids),
-                    'extent': (min(x), max(x), min(y), max(y)),
-                    'epsg': self.epsg,
-                    'geohashes': hashes
-                    }
-        s3.Object(bucket, os.path.join(key, 'metadata.json')).put(Body=json.dumps(metadata))
+        if metadata:
+            metadata = {'fcount': len(self.centroids),
+                        'extent': (min(x), max(x), min(y), max(y)),
+                        'epsg': self.epsg,
+                        'geohashes': hashes
+                        }
+            s3.Object(bucket, os.path.join(key, 'metadata.json')).put(Body=json.dumps(metadata))
 
     def Encode(self, precision):
         if self.epsg != 4326:
