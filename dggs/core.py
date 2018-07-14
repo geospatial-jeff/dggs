@@ -5,6 +5,8 @@ import geohash
 from pyproj import Proj, transform
 import json
 
+from .profiles import Geojson
+
 
 
 class DGGS():
@@ -41,3 +43,6 @@ class PointDGGS():
             centroids = [transform(inProj,outProj,x[0],x[1]) for x in self.centroids]
             return [geohash.encode(x[1], x[0]) for x in centroids]
         return [geohash.encode(x[1], x[0], precision) for x in self.centroids]
+
+    def ExportToGeojson(self):
+        return Geojson(self.centroids).MultiPoint()
