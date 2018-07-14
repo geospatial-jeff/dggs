@@ -4,9 +4,13 @@ import functools
 import geohash
 from pyproj import Proj, transform
 import json
+import boto3
+import os
 
 from .profiles import Geojson
 from .utils import cloud_optimized_vector
+
+s3 = boto3.resource('s3')
 
 class DGGS():
 
