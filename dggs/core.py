@@ -65,9 +65,9 @@ class PointDGGS():
         else:
             map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Point'), zip(self.centroids, hashes))
         #Upload metadata
-        x = [x[0] for x in self.centroids]
-        y = [y[1] for y in self.centroids]
         if metadata:
+            x = [x[0] for x in self.centroids]
+            y = [y[1] for y in self.centroids]
             metadata = {'fcount': len(self.centroids),
                         'extent': (min(x), max(x), min(y), max(y)),
                         'epsg': self.epsg,
@@ -114,9 +114,9 @@ class BoxDGGS():
         else:
             map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.boxes, hashes))
         #Upload metadata
-        x = [x[0] for x in self.centroids]
-        y = [y[1] for y in self.centroids]
         if metadata:
+            x = [x[0] for x in self.centroids]
+            y = [y[1] for y in self.centroids]
             metadata = {'fcount': len(self.centroids),
                         'extent': (min(x), max(x)+self.v_spacing, min(y)-self.h_spacing, max(y)),
                         'epsg': self.epsg,
