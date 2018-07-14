@@ -19,10 +19,10 @@ class Geojson():
             })
 
     def Polygon(self):
-        return {"type": "Feature",
+        return json.dumps({"type": "Feature",
                 "geometry": {"type": "Polygon", "coordinates": self.data
                 }
-            }
+            })
 
     def MultiPoint(self):
         return json.dumps({"type": "Feature",

@@ -44,7 +44,7 @@ class DGGS():
             #Convert into polygon
             poly = [[xmin, ymax],[xmax, ymax],[xmax, ymin],[xmin, ymin],[xmin, ymax]]
             box_list.append([poly])
-        return BoxDGGS(box_list, point_grid, self.config.epsg, self.h_spacing, self.v_spacing)
+        return BoxDGGS(box_list, point_grid.centroids, self.config.epsg, self.h_spacing, self.v_spacing)
 
 
 
@@ -108,10 +108,11 @@ class BoxDGGS():
         #Deploy the vector
         hashes = self.Encode(precision)
         if multi:
+            test = list(zip(self.boxes, hashes))
             m = Pool(multiprocessing.cpu_count()-1)
-            m.map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.centroids, hashes))
+            m.map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.boxes, hashes))
         else:
-            map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.centroids, hashes))
+            map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.boxes, hashes))
         #Upload metadata
         x = [x[0] for x in self.centroids]
         y = [y[1] for y in self.centroids]
