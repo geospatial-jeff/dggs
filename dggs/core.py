@@ -10,7 +10,7 @@ import math
 
 
 from .profiles import Geojson
-from .utils import cloud_optimized_vector
+from .utils import deploy, upload_metadata, encode
 
 s3 = boto3.resource('s3')
 
@@ -94,31 +94,13 @@ class PointDGGS():
         self.epsg = epsg
 
     def Deploy(self, bucket, key, precision, multi=False, metadata=False):
-        #Deploy the vector
         hashes = self.Encode(precision)
-        if multi:
-            m = Pool(multiprocessing.cpu_count()-1)
-            m.map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Point'), zip(self.centroids, hashes))
-        else:
-            map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Point'), zip(self.centroids, hashes))
-        #Upload metadata
+        deploy(self.centroids, hashes, bucket, key, multi=multi, type='Point')
         if metadata:
-            x = [x[0] for x in self.centroids]
-            y = [y[1] for y in self.centroids]
-            metadata = {'fcount': len(self.centroids),
-                        'extent': (min(x), max(x), min(y), max(y)),
-                        'epsg': self.epsg,
-                        'geohashes': hashes
-                        }
-            s3.Object(bucket, os.path.join(key, 'metadata.json')).put(Body=json.dumps(metadata))
+            upload_metadata(self.centroids, self.epsg, hashes, bucket, key)
 
     def Encode(self, precision):
-        if self.epsg != 4326:
-            inProj = Proj(init='epsg:{}'.format(self.epsg))
-            outProj = Proj(init='epsg:4326')
-            centroids = [transform(inProj,outProj,x[0],x[1]) for x in self.centroids]
-            return [geohash.encode(x[1], x[0]) for x in centroids]
-        return [geohash.encode(x[1], x[0], precision) for x in self.centroids]
+        return encode(self.centroids, self.epsg, precision)
 
     def ExportToGeojson(self):
         return Geojson(self.centroids).MultiPoint()
@@ -132,34 +114,14 @@ class BoxDGGS():
         self.v_spacing = v_spacing
         self.h_spacing = h_spacing
 
-
     def Encode(self, precision):
-        if self.epsg != 4326:
-            inProj = Proj(init='epsg:{}'.format(self.epsg))
-            outProj = Proj(init='epsg:4326')
-            centroids = [transform(inProj,outProj,x[0],x[1]) for x in self.centroids]
-            return [geohash.encode(x[1], x[0]) for x in centroids]
-        return [geohash.encode(x[1], x[0], precision) for x in self.centroids]
+        return encode(self.centroids, self.epsg, precision)
 
     def Deploy(self, bucket, key, precision, multi=False, metadata=False):
-        #Deploy the vector
         hashes = self.Encode(precision)
-        if multi:
-            test = list(zip(self.boxes, hashes))
-            m = Pool(multiprocessing.cpu_count()-1)
-            m.map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.boxes, hashes))
-        else:
-            map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.boxes, hashes))
-        #Upload metadata
+        deploy(self.boxes, hashes, bucket, key, multi=multi, type='Polygon')
         if metadata:
-            x = [x[0] for x in self.centroids]
-            y = [y[1] for y in self.centroids]
-            metadata = {'fcount': len(self.centroids),
-                        'extent': (min(x), max(x)+self.v_spacing, min(y)-self.h_spacing, max(y)),
-                        'epsg': self.epsg,
-                        'geohashes': hashes
-                        }
-            s3.Object(bucket, os.path.join(key, 'metadata.json')).put(Body=json.dumps(metadata))
+            upload_metadata(self.centroids, self.epsg, hashes, bucket, key)
 
     def ExportToGeojson(self):
         return Geojson(self.boxes).MultiPolygon()
@@ -172,31 +134,13 @@ class HexagonDGGS():
         self.epsg = epsg
 
     def Encode(self, precision):
-        if self.epsg != 4326:
-            inProj = Proj(init='epsg:{}'.format(self.epsg))
-            outProj = Proj(init='epsg:4326')
-            centroids = [transform(inProj,outProj,x[0],x[1]) for x in self.centroids]
-            return [geohash.encode(x[1], x[0]) for x in centroids]
-        return [geohash.encode(x[1], x[0], precision) for x in self.centroids]
+        return encode(self.centroids, self.epsg, precision)
 
     def Deploy(self, bucket, key, precision, multi=False, metadata=False):
-        #Deploy the vector
         hashes = self.Encode(precision)
-        if multi:
-            m = Pool(multiprocessing.cpu_count()-1)
-            m.map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.hexagons, hashes))
-        else:
-            map(functools.partial(cloud_optimized_vector, bucket=bucket, key=key, type='Polygon'), zip(self.hexagons, hashes))
-        #Upload metadata
+        deploy(self.hexagons, hashes, bucket, key, multi=multi, type='Polygon')
         if metadata:
-            x = [x[0] for x in self.centroids]
-            y = [y[1] for y in self.centroids]
-            metadata = {'fcount': len(self.centroids),
-                        'extent': (min(x), max(x), min(y), max(y)),
-                        'epsg': self.epsg,
-                        'geohashes': hashes
-                        }
-            s3.Object(bucket, os.path.join(key, 'metadata.json')).put(Body=json.dumps(metadata))
+            upload_metadata(self.centroids, self.epsg, hashes, bucket, key)
 
     def ExportToGeojson(self):
         return Geojson(self.centroids).MultiPolygon()
