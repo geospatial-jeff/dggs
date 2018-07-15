@@ -11,12 +11,8 @@ def _config_file(filename):
         f = open(filename)
         return f
     except FileNotFoundError:
-        try:
-            print(os.path.join(os.path.dirname(os.path.realpath(__file__)), filename))
-            f1 = open(os.path.join(os.path.dirname(os.path.realpath(__file__)), filename))
-            return f1
-        except FileNotFoundError:
-            raise ValueError("Could not find the input configuration file: {}".format(filename))
+        f1 = open(os.path.join(os.path.dirname(os.path.realpath(__file__)), filename))
+        return f1
 
 def _buildconfig(json_config):
     spacing = json_config['spacing']
