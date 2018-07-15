@@ -15,11 +15,10 @@ y_spacing = 1 #1 degree grid spacing
 #Build the configuration
 dggs_config = DistanceConfiguration(extent, x_spacing, y_spacing, epsg)
 
-#Build the DGGS from the configuration
-box_grid = DGGS(dggs_config).BoxGrid()
+#Build DGGS:
 
-print(box_grid.ExportToGeojson())
-
+box_grid = DGGS(dggs_config).BoxGrid() #Rectangular grid cells
+hexgon_grid = DGGS(dggs_config).HexagonGrid() #Hexagonal grid cells
 ```
 
 
