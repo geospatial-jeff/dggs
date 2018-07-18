@@ -9,6 +9,6 @@ setup(
     url='https://github.com/geospatial-jeff/dggs',
     packages=find_packages(),
     entry_points={
-        'console_scripts': ['dggs=main:cli']
+        'console_scripts': ['dggs=deploy:cli']
     }
 )
