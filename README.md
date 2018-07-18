@@ -1,5 +1,5 @@
-# dggs
-Utility for building and querying Discrete Global Grid Systems (DGGS).
+# Discrete Grid System Tiler (DGGS)
+Utility for building and querying Discrete Grid Systems.  Supports both [Discrete Global Grid Systems](http://www.opengeospatial.org/projects/groups/dggsswg) (DGGS) and Local Grid Systems (LGS).
 
 
 ## Usage
