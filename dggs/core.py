@@ -1,18 +1,8 @@
-import multiprocessing
-from multiprocessing import Pool
-import functools
-import geohash
-from pyproj import Proj, transform
-import json
-import boto3
-import os
 import math
-
 
 from .profiles import Geojson
 from .utils import deploy, upload_metadata, encode
-
-s3 = boto3.resource('s3')
+from .query import DGGSQuery
 
 class DGGS():
 
@@ -98,6 +88,7 @@ class PointDGGS():
         deploy(self.centroids, hashes, bucket, key, multi=multi, type='Point')
         if metadata:
             upload_metadata(self.centroids, self.epsg, hashes, bucket, key)
+        return DGGSQuery(bucket, key, precision, hashes=hashes)
 
     def Encode(self, precision):
         return encode(self.centroids, self.epsg, precision)
@@ -122,6 +113,7 @@ class BoxDGGS():
         deploy(self.boxes, hashes, bucket, key, multi=multi, type='Polygon')
         if metadata:
             upload_metadata(self.centroids, self.epsg, hashes, bucket, key)
+        return DGGSQuery(bucket, key, precision, hashes=hashes)
 
     def ExportToGeojson(self):
         return Geojson(self.boxes).MultiPolygon()
@@ -141,7 +133,9 @@ class HexagonDGGS():
         deploy(self.hexagons, hashes, bucket, key, multi=multi, type='Polygon')
         if metadata:
             upload_metadata(self.centroids, self.epsg, hashes, bucket, key)
+        return DGGSQuery(bucket, key, precision, hashes=hashes)
 
     def ExportToGeojson(self):
         return Geojson(self.centroids).MultiPolygon()
+
 
